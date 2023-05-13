@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:new_project_sat26/features/authentication/screens/register_screen.dart';
 
 import '../widgets/custom_text_field.dart';
 
@@ -94,6 +95,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Text('Sign In'),
                   onPressed: () {
                     formKey.currentState!.validate();
+
+
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: passwordController.text.isEmpty
@@ -180,7 +183,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(width: 8),
                   GestureDetector(
                     onTap: () {
-                      print('Register!!!');
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => RegisterScreen(),
+                        ),
+                      );
                     },
                     child: Text(
                       "Register",
