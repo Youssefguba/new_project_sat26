@@ -1,5 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:new_project_sat26/features/authentication/screens/register_screen.dart';
+import 'package:new_project_sat26/features/home/screens/home_screen.dart';
 
 import '../widgets/custom_text_field.dart';
 
@@ -28,7 +30,6 @@ class _LoginScreenState extends State<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // image jpg / jpeg / png
-
               Image.asset(
                 'assets/images/logo.png',
                 height: 72,
@@ -94,9 +95,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: ElevatedButton(
                   child: Text('Sign In'),
                   onPressed: () {
-                    formKey.currentState!.validate();
+                    bool isFormValid = formKey.currentState!.validate();
 
-
+                    if (isFormValid) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => HomeScreen(),
+                        ),
+                        // (route) => false,
+                      );
+                      
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: passwordController.text.isEmpty
@@ -183,9 +192,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(width: 8),
                   GestureDetector(
                     onTap: () {
-                      Navigator.of(context).pushReplacement(
+                      Navigator.pushReplacement(
+                        context,
                         MaterialPageRoute(
-                          builder: (context) => RegisterScreen(),
+                          builder: (context) => const RegisterScreen(),
                         ),
                       );
                     },
@@ -206,3 +216,18 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
+void main() {
+
+  final dio = Dio();
+
+  void getHttp() async {
+    final response = await dio.get('https://dart.dev');
+    print(response);
+  }
+
+  getHttp();
+
+}
+
+

@@ -10,7 +10,9 @@ class RegisterScreen extends StatelessWidget {
       body: Center(
         child: GestureDetector(
           onTap: () {
-            Navigator.of(context).pushReplacement(
+            // Navigator.of(context).pop();
+            Navigator.pushReplacement(
+              context,
               MaterialPageRoute(
                 builder: (context) => LoginScreen(),
               ),
