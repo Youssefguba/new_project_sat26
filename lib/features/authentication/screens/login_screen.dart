@@ -16,218 +16,231 @@ class _LoginScreenState extends State<LoginScreen> {
 
   TextEditingController passwordController = TextEditingController();
 
+  TextEditingController emailController = TextEditingController();
+
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: SafeArea(
-        child: Form(
-          key: formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // image jpg / jpeg / png
-              Image.asset(
-                'assets/images/logo.png',
-                height: 72,
-                width: 72,
-              ),
-
-              SizedBox(height: 10),
-              // welcome text
-              Text(
-                'Welcome to Lafyuu',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xff223263),
-                ),
-              ),
-
-              SizedBox(height: 8),
-
-              // sign in text
-              Text(
-                'Sign in to continue',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  color: Color(0xff9098B1),
-                ),
-              ),
-
-              // text field email
-              CustomTextField(
-                hint: 'Your Email',
-                icon: Icons.email_outlined,
-              ),
-
-              CustomTextField(
-                hint: 'Your Name',
-                icon: Icons.person,
-              ),
-
-              // text field password
-              CustomTextField(
-                controller: passwordController,
-                hint: 'Your Password',
-                icon: Icons.lock_outline,
-                obscureText: isObscureText,
-                suffixIcon: IconButton(
-                  onPressed: () {
-                    setState(() {
-                      isObscureText = !isObscureText;
-                    });
-                  },
-                  icon: isObscureText
-                      ? Icon(Icons.visibility_off)
-                      : Icon(Icons.visibility),
-                ),
-              ),
-
-              // sign in button
-              SizedBox(
-                height: 50,
-                width: MediaQuery.of(context).size.width * 0.5,
-                child: ElevatedButton(
-                  child: Text('Sign In'),
-                  onPressed: () {
-                    bool isFormValid = formKey.currentState!.validate();
-
-                    if (isFormValid) {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => HomeScreen(),
-                        ),
-                        // (route) => false,
-                      );
-                      
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: passwordController.text.isEmpty
-                        ? Colors.grey
-                        : Color(0xff40BFFF),
-                    shadowColor: Color(0xff40BFFF).withOpacity(0.24),
-                    // fixedSize: Size(MediaQuery.of(context).size.width * 0.5, 40),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 12),
-
-              // or text
-              // Divider(
-              //   color: Colors.grey,
-              //   height: 1,
-              //   thickness: 3,
-              // ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Container(
-                    height: 1,
-                    width: 200,
-                    color: Colors.grey,
-                  ),
-                  Text('OR'),
-                  Container(
-                    height: 1,
-                    width: 200,
-                    color: Colors.grey,
-                  ),
-                ],
-              ),
-
-              // login button with google
-              TextButton.icon(
-                onPressed: () {},
-                icon: Image.asset(
-                  'assets/images/google.png',
-                  height: 30,
-                ),
-                label: Text('Login with Google'),
-              ),
-
-              // login button with facebook
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Color(0xffEBF0FF),
-                    width: 2,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: TextButton.icon(
-                  onPressed: () {},
-                  icon: Icon(
-                    Icons.facebook_outlined,
-                    color: Color(0xff4092FF),
-                  ),
-                  label: Text(
-                    'Login with Facebook',
-                    style: TextStyle(
-                      color: Color(0xff9098B1),
+        child: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : Form(
+                key: formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // image jpg / jpeg / png
+                    Image.asset(
+                      'assets/images/logo.png',
+                      height: 72,
+                      width: 72,
                     ),
-                  ),
-                ),
-              ),
 
-              // forget password text clickable
-              TextButton(
-                onPressed: () {},
-                child: Text(
-                  'Forget Password?',
-                ),
-              ),
-
-              // don't have account text
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("Don’t have a account?"),
-                  SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const RegisterScreen(),
-                        ),
-                      );
-                    },
-                    child: Text(
-                      "Register",
+                    SizedBox(height: 10),
+                    // welcome text
+                    Text(
+                      'Welcome to Lafyuu',
                       style: TextStyle(
-                        color: Colors.blue,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
+                        color: Color(0xff223263),
                       ),
                     ),
-                  ),
-                ],
+
+                    SizedBox(height: 8),
+
+                    // sign in text
+                    Text(
+                      'Sign in to continue',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xff9098B1),
+                      ),
+                    ),
+
+                    // text field email
+                    CustomTextField(
+                      hint: 'Your Email',
+                      controller: emailController,
+                      icon: Icons.email_outlined,
+                      validation: (text) {
+                        if (!text!.contains('@')) {
+                          return 'Email not correct!';
+                        }
+
+                        return null;
+                      },
+                    ),
+
+                    // text field password
+                    CustomTextField(
+                      controller: passwordController,
+                      hint: 'Your Password',
+                      icon: Icons.lock_outline,
+                      obscureText: isObscureText,
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            isObscureText = !isObscureText;
+                          });
+                        },
+                        icon: isObscureText
+                            ? Icon(Icons.visibility_off)
+                            : Icon(Icons.visibility),
+                      ),
+                      validation: (text) {
+                        if (text!.length < 5) {
+                          return 'Password should be more than or equal 6 characters';
+                        }
+
+                        return null;
+                      },
+                    ),
+
+                    // sign in button
+                    SizedBox(
+                      height: 50,
+                      width: MediaQuery.of(context).size.width * 0.5,
+                      child: ElevatedButton(
+                        child: Text('Sign In'),
+                        onPressed: () async {
+                          bool isFormValid = formKey.currentState!.validate();
+
+                          if (isFormValid) {
+                            print('BEFORE await');
+                            setState(() {
+                              isLoading = true;
+                            });
+
+                            final Response response = await Dio().post(
+                              'https://student.valuxapps.com/api/login',
+                              data: {
+                                "email": emailController.text,
+                                "password": passwordController.text,
+                              },
+                            );
+
+                            setState(() {
+                              isLoading = false;
+                            });
+
+                            print('After await');
+                            print(response);
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: passwordController.text.isEmpty
+                              ? Colors.grey
+                              : Color(0xff40BFFF),
+                          shadowColor: Color(0xff40BFFF).withOpacity(0.24),
+                          // fixedSize: Size(MediaQuery.of(context).size.width * 0.5, 40),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: 12),
+
+                    // or text
+                    // Divider(
+                    //   color: Colors.grey,
+                    //   height: 1,
+                    //   thickness: 3,
+                    // ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Container(
+                          height: 1,
+                          width: 200,
+                          color: Colors.grey,
+                        ),
+                        Text('OR'),
+                        Container(
+                          height: 1,
+                          width: 200,
+                          color: Colors.grey,
+                        ),
+                      ],
+                    ),
+
+                    // login button with google
+                    TextButton.icon(
+                      onPressed: () {},
+                      icon: Image.asset(
+                        'assets/images/google.png',
+                        height: 30,
+                      ),
+                      label: Text('Login with Google'),
+                    ),
+
+                    // login button with facebook
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Color(0xffEBF0FF),
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: TextButton.icon(
+                        onPressed: () {},
+                        icon: Icon(
+                          Icons.facebook_outlined,
+                          color: Color(0xff4092FF),
+                        ),
+                        label: Text(
+                          'Login with Facebook',
+                          style: TextStyle(
+                            color: Color(0xff9098B1),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // forget password text clickable
+                    TextButton(
+                      onPressed: () {},
+                      child: Text(
+                        'Forget Password?',
+                      ),
+                    ),
+
+                    // don't have account text
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("Don’t have a account?"),
+                        SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const RegisterScreen(),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            "Register",
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
-        ),
       ),
     );
   }
 }
-
-void main() {
-
-  final dio = Dio();
-
-  void getHttp() async {
-    final response = await dio.get('https://dart.dev');
-    print(response);
-  }
-
-  getHttp();
-
-}
-
-
