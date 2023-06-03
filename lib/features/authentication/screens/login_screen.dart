@@ -132,7 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             });
 
                             print('After await');
-                            print(response);
+                            print(response.data['message']);
                           }
                         },
                         style: ElevatedButton.styleFrom(
