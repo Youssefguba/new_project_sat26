@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:new_project_sat26/features/authentication/screens/login_screen.dart';
 
+import 'features/splash/screens/splash_screen.dart';
+
 // entry point
 void main() {
   // everything in flutter is a widget
@@ -22,7 +24,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: LoginScreen(),
+      home: SplashScreen(),
     );
   }
 }
