@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:new_project_sat26/features/authentication/screens/register_screen.dart';
 import 'package:new_project_sat26/features/home/screens/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../utils/prefs_key_constants.dart';
 import '../widgets/custom_text_field.dart';
 
 // assets
@@ -29,7 +31,13 @@ class _LoginScreenState extends State<LoginScreen> {
       resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: isLoading
-            ? Center(child: CircularProgressIndicator())
+            ? Center(
+              child: Lottie.asset(
+                  'assets/loading.json',
+                  height: 80,
+                  width: 80,
+                ),
+            )
             : Form(
                 key: formKey,
                 child: Column(
@@ -246,7 +254,6 @@ class _LoginScreenState extends State<LoginScreen> {
       final status = (response.data['status'] ?? false) as bool;
       print('this is a status : $status');
 
-
       setState(() => isLoading = false);
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -258,20 +265,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // if status true -> home page
       if (status) {
-
         final token = response.data['data']['token'];
 
         final SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setString('access_token', token);
+        prefs.setString(PrefKeys.accessToken, token);
 
-
-        Navigator.of(context).push(
+        Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
             builder: (BuildContext context) {
               return HomeScreen();
             },
           ),
-          // (route) => false,
+          (route) => false,
         );
       }
     }
