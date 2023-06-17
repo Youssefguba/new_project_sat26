@@ -1,7 +1,26 @@
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  HomeScreen({Key? key}) : super(key: key);
+
+  final listOfCategories = [
+    {
+      'icon': 'assets/images/shirt.png',
+      'text': 'Shirts',
+    },
+    {
+      'icon': 'assets/images/dress.png',
+      'text': 'Dresses',
+    },
+    {
+      'icon': 'assets/images/man_bag.png',
+      'text': 'Man Work Equipment',
+    },
+    {
+      'icon': 'assets/images/shirt.png',
+      'text': 'Equipments',
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -15,31 +34,43 @@ class HomeScreen extends StatelessWidget {
           // Slider
 
           // Category
+          /// 2 ways to do a for loop with Widgets :
+
+          /// first way
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                for (var i = 0; i < 50; i++) CategoryItemWidget(i: i),
+                // for (var i = 0; i < listOfCategories.length; i++)
+                //   CategoryItemWidget(
+                //     data: listOfCategories[i],
+                //   ),
               ],
             ),
           ),
           SizedBox(height: 10),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: List.generate(50, (i) => CategoryItemWidget(i: i)),
-            ),
-          ),
+
+          /// second way
+          // SingleChildScrollView(
+          //   scrollDirection: Axis.horizontal,
+          //   child: Row(
+          //     children: List.generate(50, (i) => CategoryItemWidget(i: i)),
+          //   ),
+          // ),
 
           Container(
             height: 120,
             child: ListView.builder(
+              itemCount: listOfCategories.length,
               scrollDirection: Axis.horizontal,
               itemBuilder: (context, index) {
-                return CategoryItemWidget(i: index);
+                return CategoryItemWidget(
+                  data: listOfCategories[index],
+                );
               },
             ),
           ),
+
           // Flash Sale
         ],
       ),
@@ -48,11 +79,12 @@ class HomeScreen extends StatelessWidget {
 }
 
 class CategoryItemWidget extends StatelessWidget {
-  final int i;
   const CategoryItemWidget({
     super.key,
-    required this.i,
+    required this.data,
   });
+
+  final Map<String, dynamic> data;
 
   @override
   Widget build(BuildContext context) {
@@ -66,14 +98,22 @@ class CategoryItemWidget extends StatelessWidget {
             child: CircleAvatar(
               radius: 30,
               backgroundColor: Colors.white,
-              child: Icon(
-                Icons.person,
-                color: Color(0xff40BFFF),
+              child: Image.asset(data['icon'],
+              height: 25,
               ),
             ),
           ),
         ),
-        Text('Shirts + ${i + 1}'),
+        SizedBox(
+          width: 75,
+          child: Text(
+            data['text'],
+            maxLines: 2,
+            textAlign: TextAlign.center,
+
+
+          ),
+        ),
       ],
     );
   }
