@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:new_project_sat26/features/home/data/home_repository.dart';
 
 // [UI - Logic(API) ]
 class HomeScreen extends StatelessWidget {
@@ -22,6 +23,12 @@ class HomeScreen extends StatelessWidget {
       'icon': 'assets/images/shirt.png',
       'text': 'Equipments',
     },
+  ];
+
+  final listOfImages = [
+    'https://5.imimg.com/data5/ANDROID/Default/2021/6/UH/ZG/GC/120280019/img-20210624-wa0351-jpg-500x500.jpg',
+    'https://5.imimg.com/data5/ANDROID/Default/2021/6/UH/ZG/GC/120280019/img-20210624-wa0351-jpg-500x500.jpg',
+    'https://5.imimg.com/data5/ANDROID/Default/2021/6/UH/ZG/GC/120280019/img-20210624-wa0351-jpg-500x500.jpg',
   ];
 
   @override
@@ -80,26 +87,63 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  // FutureBuilder
+  // take from you future -> function get data
+  // give you a builder -> build ui
   Widget _sliderWidget() {
-    return CarouselSlider(
-      options: CarouselOptions(height: 200.0),
-      items: ['Ahmed', 'Khaled', 'Nada', 'Ashraf', 5].map((item) {
-        return Builder(
-          builder: (BuildContext context) {
-            return Container(
-                width: MediaQuery.of(context).size.width,
-                margin: EdgeInsets.symmetric(horizontal: 5.0),
-                decoration: BoxDecoration(color: Colors.amber),
-                child: Text(
-                  'text $item',
-                  style: TextStyle(fontSize: 16.0),
-                ));
-          },
+
+    return FutureBuilder(
+      future: HomeRepository().getHomeData(),
+      builder: (context, snapshot) {
+        print('This is a data : ${snapshot.data}');
+        print('connection state : ${snapshot.connectionState}');
+        if(snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        return CarouselSlider(
+          options: CarouselOptions(height: 200.0),
+          /// first way
+          items: List.generate(
+            listOfImages.length,
+            (index) {
+              return Builder(
+                builder: (BuildContext context) {
+                  return Container(
+                    width: MediaQuery.of(context).size.width,
+                    margin: EdgeInsets.symmetric(horizontal: 5.0),
+                    child: Image.network(listOfImages[index]),
+                  );
+                },
+              );
+            },
+          ),
+          /// second way
+          // items: [
+          //   'https://5.imimg.com/data5/ANDROID/Default/2021/6/UH/ZG/GC/120280019/img-20210624-wa0351-jpg-500x500.jpg',
+          //   'https://5.imimg.com/data5/ANDROID/Default/2021/6/UH/ZG/GC/120280019/img-20210624-wa0351-jpg-500x500.jpg',
+          //   'https://5.imimg.com/data5/ANDROID/Default/2021/6/UH/ZG/GC/120280019/img-20210624-wa0351-jpg-500x500.jpg',
+          // ].map((item) {
+          //   return Builder(
+          //     builder: (BuildContext context) {
+          //       return Container(
+          //         width: MediaQuery.of(context).size.width,
+          //         margin: EdgeInsets.symmetric(horizontal: 5.0),
+          //         child: Image.network(item),
+          //       );
+          //     },
+          //   );
+          // }).toList(),
         );
-      }).toList(),
+      }
     );
+
   }
 }
+// [    <- StateManagement <-          ]
+// [ UI <-        Logic    <- Data(Remote/Local) ]
 
 class CategoryItemWidget extends StatelessWidget {
   const CategoryItemWidget({
@@ -140,3 +184,5 @@ class CategoryItemWidget extends StatelessWidget {
     );
   }
 }
+
+// MVVM - Clean Architecture - MVC - MVP - Repository Pattern
