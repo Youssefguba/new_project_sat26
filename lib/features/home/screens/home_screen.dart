@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:new_project_sat26/features/home/data/home_repository.dart';
@@ -90,6 +91,13 @@ class HomeScreen extends StatelessWidget {
   // FutureBuilder
   // take from you future -> function get data
   // give you a builder -> build ui
+
+  // Steps to integrate API(Data) with UI
+  // 1. [DATA/REPOSITORY] Call API (GET,POST, etc..) -> data
+  // 2. [UI] Call  [DATA/REPOSITORY] in FutureBuilder
+  // 3. [UI] Handle Snapshot -> access real data
+  // 4. [UI] Merge data in Widget
+
   Widget _sliderWidget() {
 
     return FutureBuilder(
@@ -97,24 +105,30 @@ class HomeScreen extends StatelessWidget {
       builder: (context, snapshot) {
         print('This is a data : ${snapshot.data}');
         print('connection state : ${snapshot.connectionState}');
+
         if(snapshot.connectionState == ConnectionState.waiting) {
           return Center(
             child: CircularProgressIndicator(),
           );
         }
 
+        final response = snapshot.data as Response;
+        final data = response.data;
+        final banners = data['data']['banners'] as List;
+
+        print('This is banners : $banners');
         return CarouselSlider(
           options: CarouselOptions(height: 200.0),
           /// first way
           items: List.generate(
-            listOfImages.length,
+            banners.length,
             (index) {
               return Builder(
                 builder: (BuildContext context) {
                   return Container(
                     width: MediaQuery.of(context).size.width,
                     margin: EdgeInsets.symmetric(horizontal: 5.0),
-                    child: Image.network(listOfImages[index]),
+                    child: Image.network(banners[index]['image']),
                   );
                 },
               );
