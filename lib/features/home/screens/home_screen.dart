@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
+// [UI - Logic(API) ]
 class HomeScreen extends StatelessWidget {
   HomeScreen({Key? key}) : super(key: key);
 
@@ -32,6 +34,7 @@ class HomeScreen extends StatelessWidget {
       body: Column(
         children: [
           // Slider
+          _sliderWidget(),
 
           // Category
           /// 2 ways to do a for loop with Widgets :
@@ -76,6 +79,26 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+
+  Widget _sliderWidget() {
+    return CarouselSlider(
+      options: CarouselOptions(height: 200.0),
+      items: ['Ahmed', 'Khaled', 'Nada', 'Ashraf', 5].map((item) {
+        return Builder(
+          builder: (BuildContext context) {
+            return Container(
+                width: MediaQuery.of(context).size.width,
+                margin: EdgeInsets.symmetric(horizontal: 5.0),
+                decoration: BoxDecoration(color: Colors.amber),
+                child: Text(
+                  'text $item',
+                  style: TextStyle(fontSize: 16.0),
+                ));
+          },
+        );
+      }).toList(),
+    );
+  }
 }
 
 class CategoryItemWidget extends StatelessWidget {
@@ -98,8 +121,9 @@ class CategoryItemWidget extends StatelessWidget {
             child: CircleAvatar(
               radius: 30,
               backgroundColor: Colors.white,
-              child: Image.asset(data['icon'],
-              height: 25,
+              child: Image.asset(
+                data['icon'],
+                height: 25,
               ),
             ),
           ),
@@ -110,8 +134,6 @@ class CategoryItemWidget extends StatelessWidget {
             data['text'],
             maxLines: 2,
             textAlign: TextAlign.center,
-
-
           ),
         ),
       ],

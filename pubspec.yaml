@@ -39,6 +39,7 @@ dependencies:
   dio: 5.1.2
   shared_preferences: ^2.1.2
   lottie: ^2.4.0
+  carousel_slider: ^4.2.1
 
 dev_dependencies:
   flutter_test:
