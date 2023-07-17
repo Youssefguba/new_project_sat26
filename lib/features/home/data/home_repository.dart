@@ -7,4 +7,10 @@ class HomeRepository {
     return res;
   }
 
+  Future<dynamic> getCategories() async {
+    final res = await Dio().get('https://student.valuxapps.com/api/categories');
+
+    return res.data;
+  }
+
 }

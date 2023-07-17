@@ -69,22 +69,55 @@ class HomeScreen extends StatelessWidget {
           //   ),
           // ),
 
-          Container(
-            height: 120,
-            child: ListView.builder(
-              itemCount: listOfCategories.length,
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (context, index) {
-                return CategoryItemWidget(
-                  data: listOfCategories[index],
-                );
-              },
-            ),
-          ),
+          _categoryListWidget(),
 
           // Flash Sale
         ],
       ),
+    );
+  }
+
+  FutureBuilder<dynamic> _categoryListWidget() {
+    return FutureBuilder(
+      future: HomeRepository().getCategories(),
+      builder: (context, snapshot) {
+        // scenarios:
+        //  1. loading
+        //  2. error
+        //  3. success
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return Text('There is an error try again!');
+        }
+
+        if (snapshot.hasData) {
+          final categories = snapshot.data['data']['data'] as List;
+
+
+          print('list of categories : ${categories}');
+
+          return Container(
+            height: 130,
+            child: ListView.builder(
+              itemCount: categories.length,
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (context, index) {
+                return CategoryItemWidget(
+                  data: categories[index],
+                );
+              },
+            ),
+          );
+        }
+
+        return SizedBox();
+      },
     );
   }
 
@@ -99,61 +132,60 @@ class HomeScreen extends StatelessWidget {
   // 4. [UI] Merge data in Widget
 
   Widget _sliderWidget() {
-
     return FutureBuilder(
-      future: HomeRepository().getHomeData(),
-      builder: (context, snapshot) {
-        print('This is a data : ${snapshot.data}');
-        print('connection state : ${snapshot.connectionState}');
+        future: HomeRepository().getHomeData(),
+        builder: (context, snapshot) {
+          print('This is a data : ${snapshot.data}');
+          print('connection state : ${snapshot.connectionState}');
 
-        if(snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(),
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          final response = snapshot.data as Response;
+          final data = response.data;
+          final banners = data['data']['banners'] as List;
+
+          print('This is banners : $banners');
+          return CarouselSlider(
+            options: CarouselOptions(height: 200.0),
+
+            /// first way
+            items: List.generate(
+              banners.length,
+              (index) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return Container(
+                      width: MediaQuery.of(context).size.width,
+                      margin: EdgeInsets.symmetric(horizontal: 5.0),
+                      child: Image.network(banners[index]['image']),
+                    );
+                  },
+                );
+              },
+            ),
+
+            /// second way
+            // items: [
+            //   'https://5.imimg.com/data5/ANDROID/Default/2021/6/UH/ZG/GC/120280019/img-20210624-wa0351-jpg-500x500.jpg',
+            //   'https://5.imimg.com/data5/ANDROID/Default/2021/6/UH/ZG/GC/120280019/img-20210624-wa0351-jpg-500x500.jpg',
+            //   'https://5.imimg.com/data5/ANDROID/Default/2021/6/UH/ZG/GC/120280019/img-20210624-wa0351-jpg-500x500.jpg',
+            // ].map((item) {
+            //   return Builder(
+            //     builder: (BuildContext context) {
+            //       return Container(
+            //         width: MediaQuery.of(context).size.width,
+            //         margin: EdgeInsets.symmetric(horizontal: 5.0),
+            //         child: Image.network(item),
+            //       );
+            //     },
+            //   );
+            // }).toList(),
           );
-        }
-
-        final response = snapshot.data as Response;
-        final data = response.data;
-        final banners = data['data']['banners'] as List;
-
-        print('This is banners : $banners');
-        return CarouselSlider(
-          options: CarouselOptions(height: 200.0),
-          /// first way
-          items: List.generate(
-            banners.length,
-            (index) {
-              return Builder(
-                builder: (BuildContext context) {
-                  return Container(
-                    width: MediaQuery.of(context).size.width,
-                    margin: EdgeInsets.symmetric(horizontal: 5.0),
-                    child: Image.network(banners[index]['image']),
-                  );
-                },
-              );
-            },
-          ),
-          /// second way
-          // items: [
-          //   'https://5.imimg.com/data5/ANDROID/Default/2021/6/UH/ZG/GC/120280019/img-20210624-wa0351-jpg-500x500.jpg',
-          //   'https://5.imimg.com/data5/ANDROID/Default/2021/6/UH/ZG/GC/120280019/img-20210624-wa0351-jpg-500x500.jpg',
-          //   'https://5.imimg.com/data5/ANDROID/Default/2021/6/UH/ZG/GC/120280019/img-20210624-wa0351-jpg-500x500.jpg',
-          // ].map((item) {
-          //   return Builder(
-          //     builder: (BuildContext context) {
-          //       return Container(
-          //         width: MediaQuery.of(context).size.width,
-          //         margin: EdgeInsets.symmetric(horizontal: 5.0),
-          //         child: Image.network(item),
-          //       );
-          //     },
-          //   );
-          // }).toList(),
-        );
-      }
-    );
-
+        });
   }
 }
 // [    <- StateManagement <-          ]
@@ -178,18 +210,14 @@ class CategoryItemWidget extends StatelessWidget {
             backgroundColor: Color(0xFFEBF0FF),
             child: CircleAvatar(
               radius: 30,
-              backgroundColor: Colors.white,
-              child: Image.asset(
-                data['icon'],
-                height: 25,
-              ),
+              backgroundImage: NetworkImage(data['image']),
             ),
           ),
         ),
         SizedBox(
           width: 75,
           child: Text(
-            data['text'],
+            data['name'],
             maxLines: 2,
             textAlign: TextAlign.center,
           ),
@@ -200,3 +228,4 @@ class CategoryItemWidget extends StatelessWidget {
 }
 
 // MVVM - Clean Architecture - MVC - MVP - Repository Pattern
+// Pagination
