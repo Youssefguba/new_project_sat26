@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:new_project_sat26/features/home/data/home_repository.dart';
 
+import '../../category/screens/category_screen.dart';
+
 // [UI - Logic(API) ]
 class HomeScreen extends StatelessWidget {
   HomeScreen({Key? key}) : super(key: key);
@@ -87,8 +89,11 @@ class HomeScreen extends StatelessWidget {
         //  3. success
 
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(),
+          return SizedBox(
+            height: 130,
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
           );
         }
 
@@ -99,7 +104,6 @@ class HomeScreen extends StatelessWidget {
         if (snapshot.hasData) {
           final categories = snapshot.data['data']['data'] as List;
 
-
           print('list of categories : ${categories}');
 
           return Container(
@@ -108,8 +112,23 @@ class HomeScreen extends StatelessWidget {
               itemCount: categories.length,
               scrollDirection: Axis.horizontal,
               itemBuilder: (context, index) {
-                return CategoryItemWidget(
-                  data: categories[index],
+                final name = categories[index]['name'];
+                final id = categories[index]['id'];
+
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => CategoryScreen(
+                          categoryName: name,
+                          id: id,
+                        ),
+                      ),
+                    );
+                  },
+                  child: CategoryItemWidget(
+                    data: categories[index],
+                  ),
                 );
               },
             ),
@@ -133,17 +152,21 @@ class HomeScreen extends StatelessWidget {
 
   Widget _sliderWidget() {
     return FutureBuilder(
-        future: HomeRepository().getHomeData(),
-        builder: (context, snapshot) {
-          print('This is a data : ${snapshot.data}');
-          print('connection state : ${snapshot.connectionState}');
+      future: HomeRepository().getHomeData(),
+      builder: (context, snapshot) {
+        print('This is a data : ${snapshot.data}');
+        print('connection state : ${snapshot.connectionState}');
 
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return SizedBox(
+            height: 200,
+            child: Center(
               child: CircularProgressIndicator(),
-            );
-          }
+            ),
+          );
+        }
 
+        if (snapshot.hasData) {
           final response = snapshot.data as Response;
           final data = response.data;
           final banners = data['data']['banners'] as List;
@@ -185,7 +208,11 @@ class HomeScreen extends StatelessWidget {
             //   );
             // }).toList(),
           );
-        });
+        }
+
+        return const Text('There is an error try again!');
+      },
+    );
   }
 }
 // [    <- StateManagement <-          ]
@@ -210,7 +237,11 @@ class CategoryItemWidget extends StatelessWidget {
             backgroundColor: Color(0xFFEBF0FF),
             child: CircleAvatar(
               radius: 30,
-              backgroundImage: NetworkImage(data['image']),
+              backgroundImage: NetworkImage(
+                data['image'] == null
+                    ? 'https://images.unsplash.com/flagged/photo-1556637640-2c80d3201be8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YWRpZGFzJTIwc2hvZXxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80'
+                    : data['image'],
+              ),
             ),
           ),
         ),
