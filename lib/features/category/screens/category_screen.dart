@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:new_project_sat26/features/product/screens/product_screen.dart';
 
 import '../data/category_repo.dart';
 import '../models/category_item_model.dart';
 
-class CategoryScreen extends StatelessWidget {
+class CategoryScreen extends StatefulWidget {
   final String categoryName;
   final int id;
 
@@ -14,13 +15,25 @@ class CategoryScreen extends StatelessWidget {
   });
 
   @override
+  State<CategoryScreen> createState() => _CategoryScreenState();
+}
+
+class _CategoryScreenState extends State<CategoryScreen> {
+  dynamic category;
+  @override
+  void initState() {
+    super.initState();
+    category = CategoryRepo().getCategoryDetails(widget.id);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(categoryName),
+        title: Text(widget.categoryName),
       ),
       body: FutureBuilder(
-          future: CategoryRepo().getCategoryDetails(id),
+          future: category,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
@@ -29,7 +42,8 @@ class CategoryScreen extends StatelessWidget {
               return Center(child: Text(snapshot.error.toString()));
             }
             if (snapshot.hasData) {
-              final listOfCategories = snapshot.data['data']['data'];
+              print(snapshot.data);
+              final listOfCategories = (snapshot.data as Map<String, dynamic>)['data']['data'];
 
               return GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -40,27 +54,39 @@ class CategoryScreen extends StatelessWidget {
                 ),
                 itemCount: listOfCategories.length,
                 itemBuilder: (_, index) {
-                  final product = CategoryItemModel.fromJson(listOfCategories[index]);
+                  final product =
+                      CategoryItemModel.fromJson(listOfCategories[index]);
 
-                  return Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.grey,
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ProductScreen(
+                            productId: product.id,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.grey,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.network(
-                          product.image,
-                          height: 100,
-                          width: 100,
-                        ),
-                        Text(
-                          product.name.toString(),
-                        ),
-                      ],
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.network(
+                            product.image,
+                            height: 100,
+                            width: 100,
+                          ),
+                          Text(
+                            product.name.toString(),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -72,4 +98,3 @@ class CategoryScreen extends StatelessWidget {
     );
   }
 }
-
